@@ -8,4 +8,5 @@ Application will be served on port 80. It should be noted that a configuration s
 
 ``` bash
 docker-compose up -d
+docker-compose down
 ```
