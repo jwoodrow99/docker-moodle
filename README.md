@@ -4,9 +4,33 @@ This is a docker compose file designed to run moodle.
 
 ## Run App
 
-Application will be served on port 80. It should be noted that a configuration script runs at startup so the container will be running but will not serve the application for a couple minutes. You can check the moodle container logs for information.
+Application will be served on port 80. It should be noted that moodle runs several setup & configuration script at first startup so the container will be running but will not serve the application for a couple minutes. You can check the moodle container logs for information on the setup process.
 
 ``` bash
-docker-compose up -d
+cp .env.dev.example .env.dev
+cp .env.prod.example .env.prod
+
+docker-compose --env-file .env.dev up -d --build    # For development
+docker-compose --env-file .env.prod up -d --build   # For Production
+
 docker-compose down
+```
+
+## Generate SSL Cert
+
+``` bash
+# Generate SSL certificate for your domain Via certbot. Add ```--dry-run``` to the end of the command to test first.
+docker exec -i docker-moodle_maintenance_1 certbot certonly --webroot --webroot-path /var/certbot/ -d <domain>
+```
+
+## Reset App
+
+``` bash
+rm -rf ./docker/volumes
+```
+
+## Backup App
+
+``` bash
+docker run --rm -v /path/to/moodle-backups:/backups --volumes-from moodle busybox cp -a /bitnami/moodle /backups/latest
 ```

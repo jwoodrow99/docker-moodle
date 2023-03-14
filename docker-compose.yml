@@ -1,18 +1,13 @@
 version: '2'
 services:
-  mariadb:
+
+  maintenance:
     build:
       context: ./docker
-      dockerfile: mariadb.dockerfile
-    environment:
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_USER=bn_moodle
-      - MARIADB_DATABASE=bitnami_moodle
-      - MARIADB_CHARACTER_SET=utf8mb4
-      - MARIADB_COLLATE=utf8mb4_unicode_ci
+      dockerfile: maintenance.dockerfile
     volumes:
-      - './docker/volumes/mariadb_data:/bitnami/mariadb'
+      - ./docker/volumes/certbot:/var/certbot/
+      - ./docker/volumes/letsencrypt/:/etc/letsencrypt/
 
   moodle:
     build:
@@ -24,15 +19,31 @@ services:
     environment:
       - MOODLE_DATABASE_HOST=mariadb
       - MOODLE_DATABASE_PORT_NUMBER=3306
-      - MOODLE_DATABASE_USER=bn_moodle
-      - MOODLE_DATABASE_NAME=bitnami_moodle
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
+      - MOODLE_DATABASE_USER=${DATABASE_USER}
+      - MOODLE_DATABASE_PASSWORD=${DATABASE_USER_PASSWORD}
+      - MOODLE_DATABASE_NAME=${DATABASE_NAME}
     volumes:
-      - './docker/volumes/moodle_data:/bitnami/moodle'
-      - './docker/volumes/moodledata_data:/bitnami/moodledata'
+      - ./docker/volumes/moodle_data:/bitnami/moodle
+      - ./docker/volumes/moodledata_data:/bitnami/moodledata
+      - ./docker/config/httpd/vhosts/:/vhosts
+      - ./docker/config/httpd/conf/:/bitnami/apache/conf
+      - ./docker/volumes/certbot:/var/certbot/
+      - ./docker/volumes/letsencrypt/:/etc/letsencrypt/
     depends_on:
       - mariadb
+  mariadb:
+    build:
+      context: ./docker
+      dockerfile: mariadb.dockerfile
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
+      - MARIADB_USER=${DATABASE_USER}
+      - MARIADB_PASSWORD=${DATABASE_USER_PASSWORD}
+      - MARIADB_DATABASE=${DATABASE_NAME}
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - ./docker/volumes/mariadb_data:/bitnami/mariadb
 
 volumes:
   mariadb_data:
