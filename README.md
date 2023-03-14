@@ -16,6 +16,12 @@ docker-compose --env-file .env.prod up -d --build   # For Production
 docker-compose down
 ```
 
+Due to the fact that the bitnami containers are mostly non-root you need to alter the configuration or simply change the permissions of the docker directory.
+
+``` bash
+sudo chown -R 1001:1001 [dir] # /root/docker-moodle
+```
+
 ## Generate SSL Cert
 
 ``` bash
