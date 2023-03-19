@@ -27,6 +27,9 @@ sudo chown -R 1001:1001 [dir] # /root/docker-moodle
 ``` bash
 # Generate SSL certificate for your domain Via certbot. Add ```--dry-run``` to the end of the command to test first.
 docker exec -i docker-moodle_maintenance_1 certbot certonly --webroot --webroot-path /var/certbot/ -d <domain>
+
+# Refresh httpd
+docker exec -i docker-moodle_moodle_1 httpd -k restart
 ```
 
 ## Reset App
