@@ -11,6 +11,7 @@ cp .env.dev.example .env.dev
 cp .env.prod.example .env.prod
 
 docker-compose --env-file .env.dev up -d --build    # For development
+docker-compose --env-file .env.staging up -d --build    # For staging
 docker-compose --env-file .env.prod up -d --build   # For Production
 
 docker-compose down
