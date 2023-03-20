@@ -5,30 +5,42 @@ services:
     build:
       context: ./docker
       dockerfile: maintenance.dockerfile
+    restart: "always"
     volumes:
-      - ./docker/volumes/certbot:/var/certbot/
-      - ./docker/volumes/letsencrypt/:/etc/letsencrypt/
+      - ./docker/volumes/maintenance/certbot:/var/certbot/
+      - ./docker/volumes/maintenance/letsencrypt/:/etc/letsencrypt/
 
   moodle:
     build:
       context: ./docker
       dockerfile: moodle.dockerfile
+    restart: "always"
     ports:
       - '80:8080'
       - '443:8443'
     environment:
+      - MOODLE_USERNAME=${MOODLE_USER}
+      - MOODLE_PASSWORD=${MOODLE_PASSWORD}
+      - MOODLE_EMAIL=${MOODLE_EMAIL}
+      - MOODLE_SITE_NAME=${MOODLE_SITE_NAME}
+      - MOODLE_HOST=${MOODLE_HOST}
       - MOODLE_DATABASE_HOST=mariadb
       - MOODLE_DATABASE_PORT_NUMBER=3306
       - MOODLE_DATABASE_USER=${DATABASE_USER}
       - MOODLE_DATABASE_PASSWORD=${DATABASE_USER_PASSWORD}
       - MOODLE_DATABASE_NAME=${DATABASE_NAME}
+      - MOODLE_SMTP_HOST=${MOODLE_SMTP_HOST}
+      - MOODLE_SMTP_PORT=${MOODLE_SMTP_PORT}
+      - MOODLE_SMTP_USER=${MOODLE_SMTP_USER}
+      - MOODLE_SMTP_PASSWORD=${MOODLE_SMTP_PASSWORD}
+      # - MOODLE_SMTP_PROTOCOL=${MOODLE_SMTP_PROTOCOL}
     volumes:
-      - ./docker/volumes/moodle_data:/bitnami/moodle
-      - ./docker/volumes/moodledata_data:/bitnami/moodledata
+      - ./docker/volumes/moodle/data:/bitnami/moodle
+      - ./docker/volumes/moodle/moodledata:/bitnami/moodledata
       - ./docker/config/httpd/vhosts/:/vhosts
       - ./docker/config/httpd/conf/:/bitnami/apache/conf
-      - ./docker/volumes/certbot:/var/certbot/
-      - ./docker/volumes/letsencrypt/:/etc/letsencrypt/
+      - ./docker/volumes/maintenance/certbot:/var/certbot/
+      - ./docker/volumes/maintenance/letsencrypt/:/etc/letsencrypt/
     depends_on:
       - mariadb
       
@@ -36,6 +48,7 @@ services:
     build:
       context: ./docker
       dockerfile: mariadb.dockerfile
+    restart: "always"
     environment:
       - MARIADB_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
       - MARIADB_USER=${DATABASE_USER}
@@ -44,7 +57,16 @@ services:
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - ./docker/volumes/mariadb_data:/bitnami/mariadb
+      - ./docker/volumes/mariadb/data:/bitnami/mariadb
+
+  mailserver:
+    build:
+      context: ./docker
+      dockerfile: mailhog.dockerfile
+    restart: "always"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   mariadb_data:
