@@ -8,6 +8,7 @@ Application will be served on port 80. It should be noted that moodle runs sever
 
 ``` bash
 cp .env.dev.example .env.dev
+cp .env.staging.example .env.staging
 cp .env.prod.example .env.prod
 
 docker-compose --env-file .env.dev up -d --build    # For development
